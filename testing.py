@@ -32,11 +32,11 @@ def preProcess(img):
 @sio.on('telemetry')
 def telemetry(sid, data):
     speed = float(data ['speed'])
-                  image = Image.open(BytesIO(base64.b64decode(data ['image'])))
-                                                              image = np.asarray(image)
+    image = Image.open(BytesIO(base64.b64decode(data ['image'])))
+    image = np.asarray(image)
     image = preProcess(image)
     image = np.array( [image])
-            steering = float(model.predict(image))
+    steering = float(model.predict(image))
     throttle = 1.0 - spseed / maxSpeed
     print(f'{steering}, {throttle}, {speed}')
     sendControl(steering, throttle) \
