@@ -9,11 +9,11 @@ import cv2
 import random
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Convolution2D,Flatten,Dense
+from tensorflow.keras.layers import Convolution2D, Flatten, Dense
 from tensorflow.keras.optimizers import Adam
 
 def getName(filePath):
-    return filePath.split('\')[-1]
+    return filePath.split('\ ')[-1]
 
 def importDataInfo(path):
     columns = ['Center', 'Left', 'Right', 'Steering', 'Throttle', 'Brake', 'Speed']
@@ -38,14 +38,14 @@ def balanceData(data,display=True):
 
 
     removeindexList = []
-        for j in range(nBin):
-            binDataList = []
-            for i in range(len(data['Steering'])):
-                if data['Steering'][i] &gt;= bins[j] and data['Steering'][i] &lt;= bins[j + 1]:
-                    binDataList.append(i)
-            binDataList = shuffle(binDataList)
-            binDataList = binDataList[samplesPerBin:]
-            removeindexList.extend(binDataList)
+    for j in range(nBin):
+        binDataList = []
+        for i in range(len(data['Steering'])):
+            if data['Steering'][i] >= bins[j] and data['Steering'][i] <= bins[j + 1]:
+                binDataList.append(i)
+        binDataList = shuffle(binDataList)
+        binDataList = binDataList[samplesPerBin:]
+        removeindexList.extend(binDataList)
 
         print('Removed Images:', len(removeindexList))
         data.drop(data.index[removeindexList], inplace=True)
@@ -75,20 +75,20 @@ def loadData(path, data):
 def augmentImage(imgPath,steering):
     img =  mpimg.imread(imgPath)
     #PAN
-    if np.random.rand() &lt; 0.5:
+    if np.random.rand() < 0.5:
         pan = iaa.Affine(translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)})
         img = pan.augment_image(img)
 
     #ZOOM
-    if np.random.rand() &lt; 0.5:
+    if np.random.rand() < 0.5:
         zoom = iaa.Affine(scale=(1, 1.2))
         img = zoom.augment_image(img)
     #BRIGHTNESS
-    if np.random.rand() &lt; 0.5:
+    if np.random.rand() < 0.5:
         brightness = iaa.Multiply((0.2, 1.2))
         img = brightness.augment_image(img)
     #FLIP
-    if np.random.rand() &lt; 0.5:
+    if np.random.rand() < 0.5:
         img = cv2.flip(img, 1)
         steering = -steering
     return img, steering
@@ -109,7 +109,7 @@ def batchGen(imagesPath, steeringList, batchSize, trainFlag):
         steeringBatch = []
 
         for i in range(batchSize):
-        index = random.randint(0, len(imagesPath) - 1)
+            index = random.randint(0, len(imagesPath) - 1)
         if trainFlag:
             img, steering = augmentImage(imagesPath[index], steeringList[index])
         else:
@@ -118,7 +118,7 @@ def batchGen(imagesPath, steeringList, batchSize, trainFlag):
         img = preProcess(img)
         imgBatch.append(img)
         steeringBatch.append(steering)
-    yield (np.asarray(imgBatch),np.asarray(steeringBatch))
+        yield np.asarray(imgBatch),np.asarray(steeringBatch)
 
 ##CREATING A MODEL
 
@@ -138,4 +138,5 @@ def createModel():
   model.add(Dense(1))
 
   model.compile(Adam(lr=0.0001),loss='mse')
+
   return model
